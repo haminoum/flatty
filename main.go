@@ -9,8 +9,12 @@ import (
 )
 
 type Flat struct {
+<<<<<<< HEAD
 	ID        string `json: "id"`
 	Title     string `json: "title"`
+=======
+	ID        int    `json: "id"`
+>>>>>>> f64b293 (feat: update sample project)
 	Desc      string `json: "desc"`
 	Price     string `json: "price"`
 	Space     string `json: "space"`
@@ -23,6 +27,10 @@ func main() {
 	log.Println("App starting... 🫢")
 	flats := make([]Flat, 0)
 	list := ".itemlist"
+<<<<<<< HEAD
+=======
+	listItem := ".ad-listitem"
+>>>>>>> f64b293 (feat: update sample project)
 
 	// TODO add domains to env
 	collector := colly.NewCollector(
@@ -31,6 +39,7 @@ func main() {
 	)
 
 	collector.OnRequest(func(request *colly.Request) {
+<<<<<<< HEAD
 		log.Println("Visiting", request.URL.String())
 	})
 
@@ -49,6 +58,18 @@ func main() {
 
 			flats = addFlat(el, flats)
 
+=======
+		fmt.Println("Visiting", request.URL.String())
+	})
+
+	collector.OnHTML(list, func(e *colly.HTMLElement) {
+
+		e.ForEach(listItem, func(_ int, el *colly.HTMLElement) {
+
+			// TODO
+			flats = addFlat(el, flats)
+
+>>>>>>> f64b293 (feat: update sample project)
 		})
 
 	})
@@ -63,26 +84,42 @@ func main() {
 }
 
 func addFlat(el *colly.HTMLElement, flats []Flat) []Flat {
+<<<<<<< HEAD
 	// ATTRIBUTES
 	id := el.ChildAttr(".ad-listitem .aditem", "data-adid")
 	url := el.ChildAttr(".ad-listitem .aditem-main--middle h2>a", "href")
 
 	// CONTENT
 	title := el.ChildText(".ad-listitem .aditem-main--middle h2>a")
+=======
+	// id, err := strconv.Atoi(el.Attr("SOMETHINGSSSS"))
+	desc := el.ChildText(".ad-listitem .aditem-main--middle h2")
+>>>>>>> f64b293 (feat: update sample project)
 	price := el.ChildText(".ad-listitem .aditem-main--middle--price")
 	space := el.ChildText(".ad-listitem .aditem-main--bottom .simpletag.tag-small")
 	meta := el.ChildText(".ad-listitem .aditem-main--top--left")
 	published := el.ChildText(".ad-listitem .aditem-main--top--right")
+<<<<<<< HEAD
 	desc := el.ChildText(".ad-listitem .aditem-main--middle--description")
+=======
+	url := el.ChildText(".ad-listitem .aditem-main--middle h2")
+
+>>>>>>> f64b293 (feat: update sample project)
 	// if err != nil {
 	// 	log.Println("Could not get id")
 	// }
 
 	flat := Flat{
+<<<<<<< HEAD
 		ID:        id,
 		Title:     title,
 		Price:     price,
 		Desc:      desc,
+=======
+		ID:        1,
+		Desc:      desc,
+		Price:     price,
+>>>>>>> f64b293 (feat: update sample project)
 		Space:     space,
 		META:      meta,
 		PUBLISHED: published,
@@ -100,5 +137,8 @@ func writeJSON(data []Flat) {
 	}
 
 	_ = ioutil.WriteFile("flats.json", file, 0644)
+<<<<<<< HEAD
 	log.Println("Successfuly stored data")
+=======
+>>>>>>> f64b293 (feat: update sample project)
 }
