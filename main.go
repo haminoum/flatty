@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -10,7 +9,8 @@ import (
 )
 
 type Flat struct {
-	ID        int    `json: "id"`
+	ID        string `json: "id"`
+	Title     string `json: "title"`
 	Desc      string `json: "desc"`
 	Price     string `json: "price"`
 	Space     string `json: "space"`
@@ -23,7 +23,6 @@ func main() {
 	log.Println("App starting... 🫢")
 	flats := make([]Flat, 0)
 	list := ".itemlist"
-	listItem := ".ad-listitem"
 
 	// TODO add domains to env
 	collector := colly.NewCollector(
@@ -32,14 +31,22 @@ func main() {
 	)
 
 	collector.OnRequest(func(request *colly.Request) {
-		fmt.Println("Visiting", request.URL.String())
+		log.Println("Visiting", request.URL.String())
 	})
 
 	collector.OnHTML(list, func(e *colly.HTMLElement) {
+		// class selector -> div.class
+		// id selector -> div#id
+		// anchor tag -> a[href]
 
+		listItem := ".ad-listitem"
 		e.ForEach(listItem, func(_ int, el *colly.HTMLElement) {
+			// desc := el.ChildText(".ad-listitem .aditem-main--middle h2")
+			// desc := el.ChildAttr(".ad-listitem .aditem-main--middle h2")
 
-			// TODO
+			// log.Println("******")
+			// log.Println("OUTPUT:", desc)
+
 			flats = addFlat(el, flats)
 
 		})
@@ -56,22 +63,26 @@ func main() {
 }
 
 func addFlat(el *colly.HTMLElement, flats []Flat) []Flat {
-	// id, err := strconv.Atoi(el.Attr("SOMETHINGSSSS"))
-	desc := el.ChildText(".ad-listitem .aditem-main--middle h2")
+	// ATTRIBUTES
+	id := el.ChildAttr(".ad-listitem .aditem", "data-adid")
+	url := el.ChildAttr(".ad-listitem .aditem-main--middle h2>a", "href")
+
+	// CONTENT
+	title := el.ChildText(".ad-listitem .aditem-main--middle h2>a")
 	price := el.ChildText(".ad-listitem .aditem-main--middle--price")
 	space := el.ChildText(".ad-listitem .aditem-main--bottom .simpletag.tag-small")
 	meta := el.ChildText(".ad-listitem .aditem-main--top--left")
 	published := el.ChildText(".ad-listitem .aditem-main--top--right")
-	url := el.ChildText(".ad-listitem .aditem-main--middle h2")
-
+	desc := el.ChildText(".ad-listitem .aditem-main--middle--description")
 	// if err != nil {
 	// 	log.Println("Could not get id")
 	// }
 
 	flat := Flat{
-		ID:        1,
-		Desc:      desc,
+		ID:        id,
+		Title:     title,
 		Price:     price,
+		Desc:      desc,
 		Space:     space,
 		META:      meta,
 		PUBLISHED: published,
@@ -89,4 +100,5 @@ func writeJSON(data []Flat) {
 	}
 
 	_ = ioutil.WriteFile("flats.json", file, 0644)
+	log.Println("Successfuly stored data")
 }
