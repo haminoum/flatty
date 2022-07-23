@@ -5,54 +5,88 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"strconv"
 
 	"github.com/gocolly/colly"
 )
 
-type Fact struct{
-	ID int `json: "id"`
-	Description string `json: "description"`
+type Flat struct {
+	ID        int    `json: "id"`
+	Desc      string `json: "desc"`
+	Price     string `json: "price"`
+	Space     string `json: "space"`
+	META      string `json: "meta"`
+	PUBLISHED string `json: "published"`
+	URL       string `json: "url"`
 }
 
 func main() {
 	log.Println("App starting... 🫢")
-	allFacts := make([]Fact, 0)
-	
-	collector :=  colly.NewCollector(
-		colly.AllowedDomains("factretriever.com", "www.factretriever.com"),
+	flats := make([]Flat, 0)
+	list := ".itemlist"
+	listItem := ".ad-listitem"
+
+	// TODO add domains to env
+	collector := colly.NewCollector(
+		colly.AllowedDomains("ebay-kleinanzeigen.de", "www.ebay-kleinanzeigen.de"),
+		// colly.Debugger(&debug.LogDebugger{}),
 	)
 
-	collector.OnHTML(".factsList li", func(element *colly.HTMLElement){
-		factId, err := strconv.Atoi(element.Attr("id"))
-		if err != nil {
-			log.Println("Could not get id")
-		}
-
-		factDesc :=  element.Text
-
-		fact := Fact{
-			ID: factId,
-			Description: factDesc,
-		}
-
-		allFacts = append(allFacts, fact)
-	})
-
-	collector.OnRequest(func(request *colly.Request){
+	collector.OnRequest(func(request *colly.Request) {
 		fmt.Println("Visiting", request.URL.String())
 	})
 
-	collector.Visit("https://www.factretriever.com/rhino-facts")
+	collector.OnHTML(list, func(e *colly.HTMLElement) {
 
-	writeJSON(allFacts)
+		e.ForEach(listItem, func(_ int, el *colly.HTMLElement) {
+
+			// TODO
+			flats = addFlat(el, flats)
+
+		})
+
+	})
+
+	collector.OnError(func(r *colly.Response, err error) {
+		log.Println("Error scraping:", err)
+	})
+
+	collector.Visit("https://www.ebay-kleinanzeigen.de/s-wohnung-mieten/friedrichshain-kreuzberg/c203l26918r10")
+
+	writeJSON(flats)
 }
 
-func writeJSON(data []Fact){
+func addFlat(el *colly.HTMLElement, flats []Flat) []Flat {
+	// id, err := strconv.Atoi(el.Attr("SOMETHINGSSSS"))
+	desc := el.ChildText(".ad-listitem .aditem-main--middle h2")
+	price := el.ChildText(".ad-listitem .aditem-main--middle--price")
+	space := el.ChildText(".ad-listitem .aditem-main--bottom .simpletag.tag-small")
+	meta := el.ChildText(".ad-listitem .aditem-main--top--left")
+	published := el.ChildText(".ad-listitem .aditem-main--top--right")
+	url := el.ChildText(".ad-listitem .aditem-main--middle h2")
+
+	// if err != nil {
+	// 	log.Println("Could not get id")
+	// }
+
+	flat := Flat{
+		ID:        1,
+		Desc:      desc,
+		Price:     price,
+		Space:     space,
+		META:      meta,
+		PUBLISHED: published,
+		URL:       url,
+	}
+
+	flats = append(flats, flat)
+	return flats
+}
+
+func writeJSON(data []Flat) {
 	file, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
 		log.Println("Unable to create json file")
 	}
 
-	_ = ioutil.WriteFile("rhinofacts.json", file, 0644)
+	_ = ioutil.WriteFile("flats.json", file, 0644)
 }
