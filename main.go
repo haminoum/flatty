@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -20,11 +21,9 @@ type Flat struct {
 }
 
 func main() {
-	log.Println("App starting... 🫢")
+	log.Println("Flatty ... 🕵🏾")
 	flats := make([]Flat, 0)
 	list := ".itemlist"
-	listItem := ".ad-listitem"
-
 
 	// TODO add domains to env
 	collector := colly.NewCollector(
@@ -45,35 +44,7 @@ func main() {
 		e.ForEach(listItem, func(_ int, el *colly.HTMLElement) {
 			// desc := el.ChildText(".ad-listitem .aditem-main--middle h2")
 			// desc := el.ChildAttr(".ad-listitem .aditem-main--middle h2")
-
-			// log.Println("******")
-			// log.Println("OUTPUT:", desc)
-
 			flats = addFlat(el, flats)
-
-=======
-		fmt.Println("Visiting", request.URL.String())
-=======
-		log.Println("Visiting", request.URL.String())
->>>>>>> 0ad55c6 (feat: add link to JSON)
-	})
-
-	collector.OnHTML(list, func(e *colly.HTMLElement) {
-		// class selector -> div.class
-		// id selector -> div#id
-		// anchor tag -> a[href]
-
-		listItem := ".ad-listitem"
-		e.ForEach(listItem, func(_ int, el *colly.HTMLElement) {
-			// desc := el.ChildText(".ad-listitem .aditem-main--middle h2")
-			// desc := el.ChildAttr(".ad-listitem .aditem-main--middle h2")
-
-			// log.Println("******")
-			// log.Println("OUTPUT:", desc)
-
-			flats = addFlat(el, flats)
-
->>>>>>> f64b293 (feat: update sample project)
 		})
 
 	})
@@ -88,59 +59,23 @@ func main() {
 }
 
 func addFlat(el *colly.HTMLElement, flats []Flat) []Flat {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 0ad55c6 (feat: add link to JSON)
 	// ATTRIBUTES
 	id := el.ChildAttr(".ad-listitem .aditem", "data-adid")
 	url := el.ChildAttr(".ad-listitem .aditem-main--middle h2>a", "href")
 
 	// CONTENT
 	title := el.ChildText(".ad-listitem .aditem-main--middle h2>a")
-<<<<<<< HEAD
-=======
-	// id, err := strconv.Atoi(el.Attr("SOMETHINGSSSS"))
-	desc := el.ChildText(".ad-listitem .aditem-main--middle h2")
->>>>>>> f64b293 (feat: update sample project)
-=======
->>>>>>> 0ad55c6 (feat: add link to JSON)
 	price := el.ChildText(".ad-listitem .aditem-main--middle--price")
 	space := el.ChildText(".ad-listitem .aditem-main--bottom .simpletag.tag-small")
 	meta := el.ChildText(".ad-listitem .aditem-main--top--left")
 	published := el.ChildText(".ad-listitem .aditem-main--top--right")
-<<<<<<< HEAD
-<<<<<<< HEAD
 	desc := el.ChildText(".ad-listitem .aditem-main--middle--description")
-=======
-	url := el.ChildText(".ad-listitem .aditem-main--middle h2")
-
->>>>>>> f64b293 (feat: update sample project)
-=======
-	desc := el.ChildText(".ad-listitem .aditem-main--middle--description")
->>>>>>> 0ad55c6 (feat: add link to JSON)
-	// if err != nil {
-	// 	log.Println("Could not get id")
-	// }
 
 	flat := Flat{
-<<<<<<< HEAD
-<<<<<<< HEAD
 		ID:        id,
+		Price:     price,
+		Desc:      desc,
 		Title:     title,
-		Price:     price,
-		Desc:      desc,
-=======
-		ID:        1,
-		Desc:      desc,
-		Price:     price,
->>>>>>> f64b293 (feat: update sample project)
-=======
-		ID:        id,
-		Title:     title,
-		Price:     price,
-		Desc:      desc,
->>>>>>> 0ad55c6 (feat: add link to JSON)
 		Space:     space,
 		META:      meta,
 		PUBLISHED: published,
@@ -158,12 +93,6 @@ func writeJSON(data []Flat) {
 	}
 
 	_ = ioutil.WriteFile("flats.json", file, 0644)
-<<<<<<< HEAD
-<<<<<<< HEAD
 	log.Println("Successfuly stored data")
-=======
->>>>>>> f64b293 (feat: update sample project)
-=======
 	log.Println("Successfuly stored data")
->>>>>>> 0ad55c6 (feat: add link to JSON)
 }

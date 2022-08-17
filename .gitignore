@@ -15,5 +15,4 @@
 # vendor/
 # Misc
 .main.go.swp
-go.sum
-go.mod
+
